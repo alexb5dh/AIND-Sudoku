@@ -17,8 +17,18 @@ def assign_value(values, box, value):
 
 def cross(A, B):
     "Cross product of elements in A and elements in B."
-    pass
+    return [a + b for a in A for b in B]
 
+rows = 'ABCDEFGHI'
+cols = '123456789'
+boxes = cross(rows, cols)
+row_units = [cross(r, cols) for r in rows]
+column_units = [cross(rows, c) for c in cols]
+square_units = [cross(rs, cs) for rs in ('ABC','DEF','GHI') for cs in ('123','456','789')]
+units = row_units + column_units + square_units
+box_units = dict((s, [u for u in units if s in u]) for s in boxes)
+box_peers = dict((s, set(sum(box_units[s],[]))-set([s])) for s in boxes)
+        
 def grid_values(grid):
     """
     Convert grid into a dict of {square: char} with '123456789' for empties.
@@ -29,7 +39,8 @@ def grid_values(grid):
             Keys: The boxes, e.g., 'A1'
             Values: The value in each box, e.g., '8'. If the box has no value, then the value will be '123456789'.
     """
-    pass
+    return {pair[0]: pair[1] if pair[1] in '123456789' else '123456789'
+            for pair in zip(cross(rows, cols), grid)}
 
 def display(values):
     """
@@ -37,7 +48,13 @@ def display(values):
     Args:
         values(dict): The sudoku in dictionary form
     """
-    pass
+    width = 1+max(len(values[s]) for s in boxes)
+    line = '+'.join(['-'*(width*3)]*3)
+    for r in rows:
+        print(''.join(values[r+c].center(width)+('|' if c in '36' else '')
+                      for c in cols))
+        if r in 'CF': print(line)
+    return
 
 def naked_twins(values):
     """Eliminate values using the naked twins strategy.
