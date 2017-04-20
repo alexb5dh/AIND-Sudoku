@@ -51,8 +51,11 @@ def display(values):
     Args:
         values(dict): The sudoku in dictionary form
     """
+    # make all boxes strings equal length
     width = 1+max(len(values[s]) for s in boxes)
-    line = '+'.join(['-'*(width*3)]*3)
+    # add separators between squares
+    line = '+'.join(['-'*(width*3)]*3) 
+
     for r in rows:
         print(''.join(values[r+c].center(width)+('|' if c in '36' else '')
                       for c in cols))
@@ -71,37 +74,42 @@ def naked_twins(values):
     for unit in units:
         pairs = ((box1, box2) for box1 in unit for box2 in unit
             if box1 < box2 # skip duplicated pairs
+            # and take only pairs having same 2 possible values
             and len(values[box1]) == 2 and set(values[box1]) == set(values[box2]))
 
         for box1, box2 in pairs:
-            prohibited = values[box1]
+            prohibited = values[box1] # dissallow this values for current unit
             other_boxes = (box for box in unit if box not in [box1, box2])
-            for box in other_boxes:
+            for box in other_boxes: # and remove them from all other boxes in unit
                 values[box] = values[box].replace(prohibited[0], '').replace(prohibited[1], '')
 
     return values
 
 def eliminate(values):
+    # loop over all boxes with single known value
     for box, box_value in ((b, v) for b, v in values.items() if len(v) == 1):
-        for peer in box_peers[box]:
+        for peer in box_peers[box]: # and remove this value from all its peers
             new_value = values[peer].replace(box_value, '')
-            if not new_value:
+            if not new_value: # do not assign empty string if no possible values - fail instead
                 return False
             values[peer] = new_value
     return values
 
 def only_choice(values):
     for unit in units:
-        for digit in '123456789':
+        for digit in '123456789': # for all possible digits
+            # find all boxes with this digit as possible value in current unit
             digit_boxes = [box for box in unit if digit in values[box]]
-            if(len(digit_boxes) == 1):
-                values[digit_boxes[0]] = digit  
+            if(len(digit_boxes) == 1): # if only one such box
+                values[digit_boxes[0]] = digit # then we know its value :)
     return values
 
 def reduce_puzzle(values):
     while True:
+        # number of solved boxes before applying solving strategies
         solved_count_old = sum(1 for box, digits in values.items() if len(digits) == 1)
 
+        # try apply strategies
         if not eliminate(values):
             return False
         if not only_choice(values):
@@ -109,22 +117,26 @@ def reduce_puzzle(values):
         if sum(1 for box, digits in values.items() if len(digits)) == 0:
             return False
 
+        # number of solved boxes after applying solving strategies
         solved_count_new = sum(1 for box, digits in values.items() if len(digits) == 1)
         if solved_count_new == solved_count_old:
-            break
+            break # stop if no new boxes have been solved
         
     return values
 
 def search(values):
     if not reduce_puzzle(values):
-        return False
+        return False # backtrack if failed to reduce puzzle
     if not any(True for s in boxes if len(values[s]) != 1): 
-        return values
-
+        return values # return if all boxes are solved
+    
+    # find one of the unsolved boxes with minimal number of possible values
     box, _  = min((box, len(values[box])) for box in boxes if len(values[box]) > 1)
-    for value in values[box]:
+    for value in values[box]: # loop over DFS children
+        # copy sudoku before recursive call since changes can be made during strategies execution
         new_sudoku = values.copy()
         new_sudoku[box] = value
+        # DFS recursive vall for next node
         attempt = search(new_sudoku)
         if attempt:
             return attempt
