@@ -16,8 +16,8 @@ For diagonal sudoku we just add two diagonals as units.
         - For each twins pair found we try to remove values for ```9 - 2 = 7``` boxes.
 
 # Question 2 (Diagonal Sudoku)
-Q: How do we use constraint propagation to solve the diagonal sudoku problem?  
-A: *Student should provide answer here*
+**Q**: How do we use constraint propagation to solve the diagonal sudoku problem?  
+**A**: Just add two diagonals as units.
 
 ### Install
 
