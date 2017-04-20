@@ -94,7 +94,10 @@ def naked_twins(values):
 def eliminate(values):
     for box, box_value in ((b, v) for b, v in values.items() if len(v) == 1):
         for peer in box_peers[box]:
-            values[peer] = values[peer].replace(box_value, '')
+            new_value = values[peer].replace(box_value, '')
+            if not new_value:
+                return False
+            values[peer] = new_value
     return values
 
 def only_choice(values):
@@ -109,9 +112,10 @@ def reduce_puzzle(values):
     while True:
         solved_count_old = sum(1 for box, digits in values.items() if len(digits) == 1)
 
-        eliminate(values)
-        only_choice(values)
-
+        if not eliminate(values):
+            return False
+        if not only_choice(values):
+            return False
         if sum(1 for box, digits in values.items() if len(digits)) == 0:
             return False
 
@@ -124,20 +128,16 @@ def reduce_puzzle(values):
 def search(values):
     if not reduce_puzzle(values):
         return False
-
-    unsolved = ((len(digits), box) for box, digits in values.items() if len(digits) != 1)
-    if not any(unsolved):
+    if not any(True for s in boxes if len(values[s]) != 1): 
         return values
-    _, box = min(unsolved)
-    
-    old_values = values[box]
-    for digit in values[box]:
-        values[box] = digit
-        result = search(attempt)
-        if result:
-            return result
-    values[box] = old_values
-    return False
+
+    box, _  = min((box, len(values[box])) for box in boxes if len(values[box]) > 1)
+    for value in values[box]:
+        new_sudoku = values.copy()
+        new_sudoku[box] = value
+        attempt = search(new_sudoku)
+        if attempt:
+            return attempt
 
 def solve(grid):
     """
