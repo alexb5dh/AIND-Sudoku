@@ -93,10 +93,37 @@ def only_choice(values):
     return values
 
 def reduce_puzzle(values):
-    pass
+    while True:
+        solved_count_old = sum(1 for box, digits in values.items() if len(digits) == 1)
+
+        eliminate(values)
+        only_choice(values)
+
+        if sum(1 for box, digits in values.items() if len(digits)) == 0:
+            return False
+
+        solved_count_new = sum(1 for box, digits in values.items() if len(digits) == 1)
+        if solved_count_new == solved_count_old:
+            break
+        
+    return values
 
 def search(values):
-    pass
+    if not reduce_puzzle(values):
+        return False
+
+    unsolved = ((len(digits), box) for box, digits in values.items() if len(digits) != 1)
+    if not any(unsolved):
+        return values
+    _, box = min(unsolved)
+    
+    for digit in values[box]:
+        attempt = values.copy()
+        attempt[box] = digit
+        result = search(attempt)
+        if result:
+            return result
+    return False
 
 def solve(grid):
     """
@@ -107,6 +134,9 @@ def solve(grid):
     Returns:
         The dictionary representation of the final sudoku grid. False if no solution exists.
     """
+    
+    values = grid_values(grid)
+    return search(values)
 
 if __name__ == '__main__':
     diag_sudoku_grid = '2.............62....1....7...6..8...3...9...7...6..4...4....8....52.............3'
