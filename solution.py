@@ -114,8 +114,6 @@ def reduce_puzzle(values):
             return False
         if not only_choice(values):
             return False
-        if sum(1 for box, digits in values.items() if len(digits)) == 0:
-            return False
 
         # number of solved boxes after applying solving strategies
         solved_count_new = sum(1 for box, digits in values.items() if len(digits) == 1)
