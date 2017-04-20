@@ -1,10 +1,22 @@
-assignments = []
+class VisualizibleDict(dict):
+    def __init__(self, mapping):
+        super().__init__(mapping)
+        self.assignments = []
+
+    def __setitem__(self, box, value):
+        """
+        Please use this function to update your values dictionary!
+        Assigns a value to a given box. If it updates the board record it.
+        """
+
+        if self[box] == value:
+            return
+
+        super().__setitem__(box, str(value))
+        if len(value) == 1:
+            self.assignments.append(self.copy())
 
 def assign_value(values, box, value):
-    """
-    Please use this function to update your values dictionary!
-    Assigns a value to a given box. If it updates the board record it.
-    """
 
     # Don't waste memory appending actions that don't actually change any values
     if values[box] == value:
@@ -138,15 +150,17 @@ def solve(grid):
     """
 
     values = grid_values(grid)
+    values = VisualizibleDict(values)
     return search(values)
 
 if __name__ == '__main__':
     diag_sudoku_grid = '2.............62....1....7...6..8...3...9...7...6..4...4....8....52.............3'
-    display(solve(diag_sudoku_grid))
+    solution = solve(diag_sudoku_grid)
+    display(solution)
 
     try:
         from visualize import visualize_assignments
-        visualize_assignments(assignments)
+        visualize_assignments(solution.assignments)
 
     except SystemExit:
         pass
