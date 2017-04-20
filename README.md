@@ -2,8 +2,18 @@
 ## Introductory Project: Diagonal Sudoku Solver
 
 # Question 1 (Naked Twins)
-Q: How do we use constraint propagation to solve the naked twins problem?  
-A: *Student should provide answer here*
+**Q**: How do we use constraint propagation to solve the naked twins problem?  
+**A**: First, loop over all units. 
+For each pair of boxes that have equal sets of exactly 2 possible values we prohibit these values for current unit.
+Now loop over all other boxes in unit and remove prohibited values if present.
+
+This solution scales well for hexadoku and other ```n²```×```n²``` variants.
+For diagonal sudoku we just add two diagonals as units.
+
+**Time analysis for regular (not diagonal) ```9```×```9``` sudoku:**  
+- We iterate through over ```9``` row, ```9``` column and ```9``` square units - total ```27``` units.
+    - For each unit we check ```9*(9-1)/2 = 36``` pairs as possible twins - total ```27 * 36 = 972``` pairs.
+        - For each twins pair found we try to remove values for ```9 - 2 = 7``` boxes.
 
 # Question 2 (Diagonal Sudoku)
 Q: How do we use constraint propagation to solve the diagonal sudoku problem?  

@@ -65,8 +65,18 @@ def naked_twins(values):
         the values dictionary with the naked twins eliminated from peers.
     """
 
-    # Find all instances of naked twins
-    # Eliminate the naked twins as possibilities for their peers
+    for unit in units:
+        pairs = ((box1, box2) for box1 in unit for box2 in unit
+            if box1 < box2 # skip duplicated pairs
+            and len(values[box1]) == 2 and set(values[box1]) == set(values[box2]))
+
+        for box1, box2 in pairs:
+            prohibited = values[box1]
+            other_boxes = (box for box in unit if box not in [box1, box2])
+            for box in other_boxes:
+                values[box] = values[box].replace(prohibited[0], '').replace(prohibited[1], '')
+
+    return values
 
 def eliminate(values):
     pass
