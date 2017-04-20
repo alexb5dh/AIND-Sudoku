@@ -79,10 +79,18 @@ def naked_twins(values):
     return values
 
 def eliminate(values):
-    pass
+    for box, box_value in ((b, v) for b, v in values.items() if len(v) == 1):
+        for peer in box_peers[box]:
+            values[peer] = values[peer].replace(box_value, '')
+    return values
 
 def only_choice(values):
-    pass
+    for unit in units:
+        for digit in '123456789':
+            digit_boxes = [box for box in unit if digit in values[box]]
+            if(len(digit_boxes) == 1):
+                values[digit_boxes[0]] = digit  
+    return values
 
 def reduce_puzzle(values):
     pass
