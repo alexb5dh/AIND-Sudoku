@@ -118,12 +118,13 @@ def search(values):
         return values
     _, box = min(unsolved)
     
+    old_values = values[box]
     for digit in values[box]:
-        attempt = values.copy()
-        attempt[box] = digit
+        values[box] = digit
         result = search(attempt)
         if result:
             return result
+    values[box] = old_values
     return False
 
 def solve(grid):
